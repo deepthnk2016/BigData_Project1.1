@@ -1,0 +1,28 @@
+--##################################################
+-- GET count of arrests between Oct 2014 and Oct 2015
+--##################################################
+
+REGISTER '/home/maria_dev/acadgild/assignments/projects/project1/piggybank-0.17.0.jar' ;
+-- Load Crime data from csv
+
+crime_data = LOAD '/home/maria_dev/acadgild/assignments/projects/project1/Crimes2001_to_present.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage(',','NO_MULTILINE','UNIX','SKIP_INPUT_HEADER') ;
+
+-- select the data columns on which we have to work
+
+qualifying_data = foreach crime_data generate ToDate($2,'M/d/yyyy HH:mm:ss a') as (casedate:DateTime), (chararray)$8 as arrests ;
+
+--filter data
+
+
+
+filter_data = filter qualifying_data by arrests == 'true' AND casedate >= ToDate('10/01/2014','M/d/yyyy') AND casedate <= ToDate('10/31/2015','M/d/yyyy') ;
+--dump filter_data ;
+
+-- group the data by fbicode
+group_qualifying_data = GROUP filter_data ALL ;
+
+-- get count
+count_qualifying_data = foreach group_qualifying_data GENERATE COUNT(filter_data) ;
+
+-- display output
+dump count_qualifying_data ;
