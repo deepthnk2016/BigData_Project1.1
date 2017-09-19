@@ -1,0 +1,23 @@
+--#####################################################
+-- GET THE COUNT OF ALL THE CASES SOLVED BY FBI CODE 32
+--#####################################################
+
+REGISTER '/home/maria_dev/acadgild/assignments/projects/project1/piggybank-0.17.0.jar' ;
+
+-- Load Crime data from csv
+
+crime_data = LOAD '/home/maria_dev/acadgild/assignments/projects/project1/Crimes2001_to_present.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage(',','NO_MULTILINE','UNIX','SKIP_INPUT_HEADER');
+
+-- select the data columns on which we have to work
+dataset = foreach crime_data generate (chararray)$14 as fbicode;
+
+-- filter dataset
+elg_dataset = filter dataset  by fbicode == '32' ;
+
+elg_dataset_groupall = group elg_dataset ALL ;
+
+-- get count
+count_elg_dataset = foreach elg_dataset_groupall GENERATE COUNT(elg_dataset.fbicode) ;
+
+-- display output
+dump count_elg_dataset ;
